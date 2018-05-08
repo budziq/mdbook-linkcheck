@@ -68,13 +68,16 @@ fn run(args: &Args) -> Result<(), Error> {
         serde_json::from_reader(io::stdin()).context("Unable to parse RenderContext")?
     };
 
-    mdbook_linkcheck::check_links(&ctx)?;
+    mdbook_linkcheck::check_links(&ctx, args.follow_weblinks)?;
 
     Ok(())
 }
 
 #[derive(Debug, Clone, StructOpt)]
 struct Args {
+    #[structopt(short = "f", long = "follow-weblinks",
+                help = "Follow links to the internet")]
+    follow_weblinks: bool,
     #[structopt(short = "s", long = "standalone",
                 help = "Run standalone (i.e. not as a mdbook plugin)")]
     standalone: bool,

@@ -25,7 +25,8 @@ fn validate_external_link(link: &Link, url: &Url, cfg: &Config) -> Result<(), Bo
     if cfg.follow_web_links {
         debug!("Fetching \"{}\"", url);
 
-        let response = reqwest::get(url.clone()).map_err(|e| {
+        let client = reqwest::Client::new();
+        let response = client.head(url.clone()).send().map_err(|e| {
             Box::new(HttpError::new(
                 url.clone(),
                 link.chapter.path.clone(),

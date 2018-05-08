@@ -39,10 +39,10 @@ use validation::check_link;
 ///
 /// If there were any broken links then you'll be able to downcast the `Error`
 /// returned into `BrokenLinks`.
-pub fn check_links(ctx: &RenderContext) -> Result<(), Error> {
+pub fn check_links(ctx: &RenderContext, follow: bool) -> Result<(), Error> {
     info!("Started the link checker");
 
-    let cfg = get_config(ctx)?;
+    let cfg = get_config(ctx, follow)?;
 
     if log_enabled!(::log::Level::Trace) {
         for line in format!("{:#?}", cfg).lines() {
@@ -79,13 +79,17 @@ pub fn check_links(ctx: &RenderContext) -> Result<(), Error> {
     }
 }
 
-fn get_config(ctx: &RenderContext) -> Result<Config, Error> {
+fn get_config(ctx: &RenderContext, follow: bool) -> Result<Config, Error> {
     match ctx.config.get("output.linkcheck") {
         Some(raw) => raw.clone()
             .try_into()
             .context("Unable to deserialize the `output.linkcheck` table.")
             .map_err(Error::from),
-        None => Ok(Config::default()),
+        None => {
+            let mut cfg = Config::default();
+            cfg.follow_web_links = follow;
+            Ok(cfg)
+        },
     }
 }
 
